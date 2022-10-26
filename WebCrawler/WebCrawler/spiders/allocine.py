@@ -1,6 +1,7 @@
 import scrapy
 from scrapy import Request
 from WebCrawler.items import ReviewsAllocineItem
+from WebCrawler.pipelines import Database
 
 
 class AllocineSpider(scrapy.Spider):
@@ -9,6 +10,10 @@ class AllocineSpider(scrapy.Spider):
     
     #Liste des pages à collecter
     start_urls = [f'https://www.allocine.fr/film/meilleurs/?page={n}' for n in range(1,10)]
+
+
+    Database.connectDb()
+    Database.createTable()
 
 
     def start_requests(self):
@@ -72,6 +77,8 @@ class AllocineSpider(scrapy.Spider):
                 item['release'] = film.css('.meta-body-item').css('.date::text')[0].extract()
             except:
                 item['release'] = 'None'
+
+            Database.addRow(item)
 
             yield item
 

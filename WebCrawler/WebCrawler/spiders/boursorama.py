@@ -2,11 +2,15 @@ import scrapy
 from scrapy import Request
 from WebCrawler.items import ReviewsBoursoramaItem
 import datetime
+from WebCrawler.pipelines import Database
 
 class BoursoramaSpider(scrapy.Spider):
     name = 'boursorama'
     allowed_domains = ['finance.yahoo.com']
     start_urls = [f'https://www.boursorama.com/bourse/actions/palmares/france/page-{n}?france_filter[market]=1rPCAC' for n in range(1,3)]
+
+    Database.connectDb()
+    Database.createTable()
 
     def start_requests(self):
         for url in self.start_urls:
@@ -59,5 +63,6 @@ class BoursoramaSpider(scrapy.Spider):
             except:
               item['time'] = 'None'
 
+            Database.addRow(item)
             
             yield item
